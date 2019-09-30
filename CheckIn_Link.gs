@@ -79,6 +79,7 @@ function checkInImport(sheet, agents, date, metrics) {
   var dateCell = sheet.getRange('E1');
   var valuesRange = sheet.getRange('A2:A3');
   var row, values;
+  var skipped = [];
   
   if (!date || typeof date !== 'string') throw 'Invalid date! Date needs to be of type "string".';
   if (!agents || typeof agents !== 'object') throw 'Invalid agents! Agents needs to be of type "object".';
@@ -96,9 +97,11 @@ function checkInImport(sheet, agents, date, metrics) {
     }
     
     if (values[0][0] === '#REF!') {
-      ui.alert('Check In/Out not found',
-               'There was an issue locating the sheet for ' + agents[i] + ' on ' + date + '. This agent will be skipped.',
-               ui.ButtonSet.OK);
+      skipped.push({
+        name: agents[i],
+        date: date,
+        sheetName: sheet.getSheetName()
+      });
       continue;
     } 
     
@@ -111,6 +114,16 @@ function checkInImport(sheet, agents, date, metrics) {
     
     metrics.values[row + checkInDriver().offsets.leadsSourced][0] = values.leadsSourced;
     metrics.values[row + checkInDriver().offsets.itemsSold][0] = values.itemsSold;
+  }
+  
+  if (skipped.length > 0) {
+    var team = skipped[0].sheetName.split('CheckInLink')[1];
+    skipped = skipped.map(function (info) {
+      return '\n' + info.name + ' on ' + info.date;
+    });
+    ui.alert('Skipped Agents',
+             'There was an issue locating the sheet for the following agent-date combos for team ' + team + ': ' + skipped + '\nThose agents had nothing imported for the selected date.',
+             ui.ButtonSet.OK);
   }
   
   return metrics.values;
