@@ -39,8 +39,9 @@ function newMonth() {
 function endOfMonth() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('UplistLink');
-  var range = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn());
-  range.setValues(range.getValues());
+  var range = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).setValues(range.getValues());
   sheet.hideSheet();
-  SpreadsheetApp.flush();
+  sheet = ss.getSheetByName('PACE CHART');
+  range = sheet.getRange('B16:B17');
+  range.setValues(range.getValues());
 }
